@@ -5,6 +5,7 @@ from rest_framework import status
 
 logger = logging.getLogger(__name__)
 
+
 def custom_exception_handler(exc, context):
     response = exception_handler(exc, context)
 
@@ -14,9 +15,9 @@ def custom_exception_handler(exc, context):
             {
                 "status_code": 500,
                 "error": "Internal Server Error",
-                "details": "An unexpected error occurred on the server."
+                "details": "An unexpected error occurred on the server.",
             },
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
     logger.warning(f"Handled Exception: {str(exc)}", exc_info=True)
@@ -24,7 +25,7 @@ def custom_exception_handler(exc, context):
         {
             "status_code": response.status_code,
             "error": exc.__class__.__name__,
-            "details": response.data
+            "details": response.data,
         },
-        status=response.status_code
+        status=response.status_code,
     )
