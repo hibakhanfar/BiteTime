@@ -36,4 +36,4 @@ exclude = ["**/migrations/*"]
 "core/settings/*.py" = ["F403", "F405"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["core", "users"]
+known-first-party = ["core", "common"]
