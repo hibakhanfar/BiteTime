@@ -1,6 +1,7 @@
 from .User import User
+from .MenuItem import MenuItem
 from .Order import Order
 from .OrderItem import OrderItem
-from .MenuItem import MenuItem
+
 
 __all__ = ["User", "Order", "OrderItem", "MenuItem"]
