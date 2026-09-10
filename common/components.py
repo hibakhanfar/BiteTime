@@ -1,4 +1,4 @@
-from .models import User
+from common.models.User import User
 
 
 class UserService:
