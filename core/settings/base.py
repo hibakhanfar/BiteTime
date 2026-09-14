@@ -169,3 +169,6 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "API documentation",
     "VERSION": "1.0.0",
 }
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
