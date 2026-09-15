@@ -10,7 +10,11 @@ from rest_framework import status
 
 
 class MenuItemListView(ListCreateAPIView):
-    queryset = MenuItem.objects.filter(is_available=True)
+    def get_queryset(self):
+        user = self.request.user
+        if user.role in ["MANAGER", "CHEF"]:
+            return MenuItem.objects.all()
+        return MenuItem.objects.filter(is_available=True)
 
     def get_permissions(self):
         if self.request.method == "POST":
