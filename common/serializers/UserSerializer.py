@@ -27,3 +27,18 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = ("id", "username", "email")
         read_only_fields = ("id", "username", "email")
+
+
+class StaffCreateSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(required=True)
+    role = serializers.ChoiceField(choices=[User.Role.CHEF, User.Role.WAITER])
+
+    def create(self, validated_data):
+        return UserService.create_staff_user(
+            username=validated_data["username"],
+            email=validated_data["email"],
+            password=validated_data["password"],
+            role=validated_data["role"],
+        )
