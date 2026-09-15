@@ -25,20 +25,14 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("id", "username", "email")
-        read_only_fields = ("id", "username", "email")
+        fields = ("id", "username", "email", "role")
+        read_only_fields = ("id", "username", "email", "role")
 
 
-class StaffCreateSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    email = serializers.EmailField(required=True)
-    password = serializers.CharField(required=True)
+class UserRoleUpdateSerializer(serializers.Serializer):
     role = serializers.ChoiceField(choices=[User.Role.CHEF, User.Role.WAITER])
 
-    def create(self, validated_data):
-        return UserService.create_staff_user(
-            username=validated_data["username"],
-            email=validated_data["email"],
-            password=validated_data["password"],
-            role=validated_data["role"],
-        )
+    def update(self, instance, validated_data):
+        instance.role = validated_data["role"]
+        instance.save()
+        return instance

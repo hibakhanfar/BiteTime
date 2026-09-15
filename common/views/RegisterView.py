@@ -6,8 +6,10 @@ from common.responses import api_response
 from common.serializers.UserSerializer import (
     RegisterSerializer,
     UserProfileSerializer,
-    StaffCreateSerializer,
+    UserRoleUpdateSerializer,
 )
+from rest_framework.generics import get_object_or_404
+from common.models import User
 
 
 class RegisterView(APIView):
@@ -36,24 +38,40 @@ class RegisterView(APIView):
         )
 
 
-class StaffCreateView(APIView):
+class UserListView(APIView):
     permission_classes = [HasRole]
     allowed_roles = ["MANAGER"]
-    serializer_class = StaffCreateSerializer
 
-    def post(self, request):
-        serializer = StaffCreateSerializer(data=request.data)
+    def get(self, request):
+        users = User.objects.all()
+        serializer = UserProfileSerializer(users, many=True)
+
+        return api_response(
+            status_code=200,
+            message="Users retrieved successfully",
+            data=serializer.data,
+        )
+
+
+class UserRoleUpdateView(APIView):
+    permission_classes = [HasRole]
+    allowed_roles = ["MANAGER"]
+    serializer_class = UserRoleUpdateSerializer
+
+    def patch(self, request, pk):
+        instance = get_object_or_404(User, pk=pk)
+        serializer = UserRoleUpdateSerializer(instance, data=request.data, partial=True)
 
         if serializer.is_valid():
-            user = serializer.save()
+            serializer.save()
             return api_response(
-                status_code=status.HTTP_201_CREATED,
-                message="Staff user created successfully",
-                data={"id": user.id, "email": user.email, "role": user.role},
+                status_code=status.HTTP_200_OK,
+                message="User role updated successfully",
+                data={"id": instance.id, "email": instance.email, "role": instance.role},
             )
 
         return api_response(
             status_code=status.HTTP_400_BAD_REQUEST,
-            message="Staff creation failed",
+            message="Role update failed",
             errors=serializer.errors,
         )
