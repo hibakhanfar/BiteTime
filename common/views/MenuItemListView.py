@@ -4,6 +4,9 @@ from common.responses import api_response
 from common.permissions import HasRole
 from common.models import MenuItem
 from common.serializers.MenuItemSerializer import MenuItemSerializer, MenuItemCreateSerializer
+from rest_framework.views import APIView
+from rest_framework.generics import get_object_or_404
+from rest_framework import status
 
 
 class MenuItemListView(ListCreateAPIView):
@@ -11,7 +14,7 @@ class MenuItemListView(ListCreateAPIView):
 
     def get_permissions(self):
         if self.request.method == "POST":
-            self.allowed_roles = ["CHEF"]
+            self.allowed_roles = ["MANAGER"]
             return [HasRole()]
         return [IsAuthenticated()]
 
@@ -33,4 +36,24 @@ class MenuItemListView(ListCreateAPIView):
         self.perform_create(serializer)
         return api_response(
             status_code=201, message="Menu created successfully", data=serializer.data
+        )
+
+
+class MenuToggleAvailabilityView(APIView):
+    permission_classes = [HasRole]
+    allowed_roles = ["CHEF"]
+
+    def patch(self, request, pk):
+        menu_item = get_object_or_404(MenuItem, pk=pk)
+        menu_item.is_available = not menu_item.is_available
+        menu_item.save()
+
+        return api_response(
+            status_code=status.HTTP_200_OK,
+            message="Availability toggled successfully",
+            data={
+                "id": menu_item.id,
+                "name": menu_item.name,
+                "is_available": menu_item.is_available,
+            },
         )
