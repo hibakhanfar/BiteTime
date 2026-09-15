@@ -7,9 +7,12 @@ from common.serializers.MenuItemSerializer import MenuItemSerializer, MenuItemCr
 from rest_framework.views import APIView
 from rest_framework.generics import get_object_or_404
 from rest_framework import status
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
 
 class MenuItemListView(ListCreateAPIView):
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
     def get_queryset(self):
         user = self.request.user
         if user.role in ["MANAGER", "CHEF"]:
