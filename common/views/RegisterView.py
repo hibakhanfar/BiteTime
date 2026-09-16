@@ -1,5 +1,5 @@
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from common.permissions import HasRole
 from common.responses import api_response
@@ -7,9 +7,11 @@ from common.serializers.UserSerializer import (
     RegisterSerializer,
     UserProfileSerializer,
     UserRoleUpdateSerializer,
+    UserAvatarUpdateSerializer,
 )
 from rest_framework.generics import get_object_or_404
 from common.models import User
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 class RegisterView(APIView):
@@ -73,5 +75,28 @@ class UserRoleUpdateView(APIView):
         return api_response(
             status_code=status.HTTP_400_BAD_REQUEST,
             message="Role update failed",
+            errors=serializer.errors,
+        )
+
+
+class UserAvatarUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+    serializer_class = UserAvatarUpdateSerializer
+
+    def patch(self, request):
+        serializer = UserAvatarUpdateSerializer(request.user, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return api_response(
+                status_code=status.HTTP_200_OK,
+                message="Avatar updated successfully",
+                data=UserProfileSerializer(request.user).data,
+            )
+
+        return api_response(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message="Avatar update failed",
             errors=serializer.errors,
         )

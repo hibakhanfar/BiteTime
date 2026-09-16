@@ -9,7 +9,7 @@ class MenuItemSerializer(serializers.ModelSerializer):
 
 
 class MenuItemCreateSerializer(serializers.ModelSerializer):
-    price = serializers.DecimalField(decimal_places=2, min_value=0.00)
+    price = serializers.DecimalField(max_digits=8, decimal_places=2, min_value=0.00)
     estimated_prep_minutes = serializers.IntegerField(min_value=1)
 
     class Meta:

@@ -6,6 +6,7 @@ from .views import (
     MenuItemListView,
     UserRoleUpdateView,
     UserListView,
+    UserAvatarUpdateView,
     MenuToggleAvailabilityView,
 )
 
@@ -20,4 +21,5 @@ urlpatterns = [
         MenuToggleAvailabilityView.as_view(),
         name="menu-toggle-availability",
     ),
+    path("users/me/avatar/", UserAvatarUpdateView.as_view(), name="user-avatar-update"),
 ]
