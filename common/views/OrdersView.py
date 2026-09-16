@@ -1,8 +1,11 @@
 from rest_framework.views import APIView
 from rest_framework import status
 from common.permissions import HasRole
+from rest_framework.permissions import IsAuthenticated
 from common.serializers.OrderSerializer import OrderCreateSerializer, OrderResponseSerializer
 from common.responses import api_response
+from rest_framework.generics import get_object_or_404
+from common.models import Order
 
 
 class OrderCreateView(APIView):
@@ -26,4 +29,47 @@ class OrderCreateView(APIView):
             status_code=status.HTTP_400_BAD_REQUEST,
             message="Order creation failed",
             errors=serializer.errors,
+        )
+
+
+class OrderQueueView(APIView):
+    permission_classes = [HasRole]
+    allowed_roles = ["WAITER"]
+
+    def patch(self, request, pk):
+        order = get_object_or_404(Order, pk=pk)
+
+        if order.status != Order.Status.PLACED:
+            return api_response(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                message=f"Cannot queue order with status '{order.status}'. Order must be PLACED first.",
+            )
+
+        order.status = Order.Status.QUEUED
+        order.save()
+
+        return api_response(
+            status_code=status.HTTP_200_OK,
+            message="Order queued successfully",
+            data={"id": order.id, "status": order.status},
+        )
+
+
+class OrderListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        if user.role == "CUSTOMER":
+            orders = Order.objects.filter(customer=user)
+        else:
+            orders = Order.objects.all()
+
+        serializer = OrderResponseSerializer(orders, many=True)
+
+        return api_response(
+            status_code=200,
+            message="Orders retrieved successfully",
+            data=serializer.data,
         )
