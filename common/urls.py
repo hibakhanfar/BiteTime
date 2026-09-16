@@ -8,6 +8,7 @@ from .views import (
     UserListView,
     UserAvatarUpdateView,
     MenuToggleAvailabilityView,
+    OrderCreateView,
 )
 
 urlpatterns = [
@@ -22,4 +23,5 @@ urlpatterns = [
         name="menu-toggle-availability",
     ),
     path("users/me/avatar/", UserAvatarUpdateView.as_view(), name="user-avatar-update"),
+    path("orders/", OrderCreateView.as_view(), name="OrderCreate"),
 ]

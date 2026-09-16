@@ -20,3 +20,7 @@ class Order(models.Model):
     completed_at = models.DateTimeField(null=True, blank=True)
 
     items = models.ManyToManyField(MenuItem, through="OrderItem", related_name="orders")
+
+    @property
+    def total_price(self):
+        return sum(item.quantity * item.unit_price_at_time for item in self.orderitem_set.all())
