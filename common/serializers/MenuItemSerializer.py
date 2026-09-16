@@ -9,6 +9,9 @@ class MenuItemSerializer(serializers.ModelSerializer):
 
 
 class MenuItemCreateSerializer(serializers.ModelSerializer):
+    price = serializers.DecimalField(decimal_places=2, min_value=0.00)
+    estimated_prep_minutes = serializers.IntegerField(min_value=1)
+
     class Meta:
         model = MenuItem
         fields = ("name", "price", "estimated_prep_minutes", "image", "allergen_tags")
