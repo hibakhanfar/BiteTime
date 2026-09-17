@@ -1,5 +1,7 @@
 from common.models.User import User
 from common.models import Order, OrderItem
+from Services import EmailNotificationService
+from django.utils import timezone
 
 
 class UserService:
@@ -35,4 +37,40 @@ class OrderService:
             )
 
         OrderItem.objects.bulk_create(order_items)
+        return order
+
+    @staticmethod
+    def start_preparation(order: Order) -> Order:
+        max_item_prep_time = max(
+            item.menu_item.estimated_prep_minutes for item in order.orderitem_set.all()
+        )
+        active_orders = Order.objects.filter(status=Order.Status.IN_PREP)
+
+        backlog_minutes = 0
+        for active_order in active_orders:
+            remaining = (active_order.estimated_ready_at - timezone.now()).total_seconds() / 60
+            if remaining > 0:
+                backlog_minutes += remaining
+
+        total_prep_minutes = max_item_prep_time + backlog_minutes
+
+        order.status = Order.Status.IN_PREP
+        order.prep_started_at = timezone.now()
+        order.estimated_ready_at = timezone.now() + timezone.timedelta(minutes=total_prep_minutes)
+        order.save()
+
+        email_body = (
+            f"Hi {order.customer.username},\n\n"
+            f"The kitchen has started preparing your order #{order.id} "
+            f"(table {order.table_number}).\n"
+            f"Estimated ready time: {order.estimated_ready_at:%Y-%m-%d %H:%M}.\n\n"
+            f"- BiteTime"
+        )
+        email_data = {
+            "email_subject": f"Your BiteTime order #{order.id} is now being prepared",
+            "email_body": email_body,
+            "to_email": order.customer.email,
+        }
+        EmailNotificationService.send_email(email_data)
+
         return order

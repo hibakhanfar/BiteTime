@@ -6,7 +6,7 @@ from common.serializers.OrderSerializer import OrderCreateSerializer, OrderRespo
 from common.responses import api_response
 from rest_framework.generics import get_object_or_404
 from common.models import Order
-from django.utils import timezone
+from common.components import OrderService
 
 
 class OrderCreateView(APIView):
@@ -89,24 +89,7 @@ class OrderStartPrepView(APIView):
                 message=f"Cannot in_prep order with status '{order.status}'. Order must be QUEUED first.",
             )
 
-        max_item_prep_time = max(
-            item.menu_item.estimated_prep_minutes for item in order.orderitem_set.all()
-        )
-        active_orders = Order.objects.filter(status=Order.Status.IN_PREP)
-
-        backlog_minutes = 0
-        for active_order in active_orders:
-            remaining = (active_order.estimated_ready_at - timezone.now()).total_seconds() / 60
-            if remaining > 0:
-                backlog_minutes += remaining
-
-        total_prep_minutes = max_item_prep_time + backlog_minutes
-
-        order.status = Order.Status.IN_PREP
-        order.prep_started_at = timezone.now()
-        order.estimated_ready_at = timezone.now() + timezone.timedelta(minutes=total_prep_minutes)
-
-        order.save()
+        order = OrderService.start_preparation(order)
 
         return api_response(
             status_code=status.HTTP_200_OK,
