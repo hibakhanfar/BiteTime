@@ -6,6 +6,7 @@ from common.serializers.OrderSerializer import OrderCreateSerializer, OrderRespo
 from common.responses import api_response
 from rest_framework.generics import get_object_or_404
 from common.models import Order
+from django.utils import timezone
 
 
 class OrderCreateView(APIView):
@@ -72,4 +73,47 @@ class OrderListView(APIView):
             status_code=200,
             message="Orders retrieved successfully",
             data=serializer.data,
+        )
+
+
+class OrderStartPrepView(APIView):
+    permission_classes = [HasRole]
+    allowed_roles = ["CHEF"]
+
+    def patch(self, request, pk):
+        order = get_object_or_404(Order, pk=pk)
+
+        if order.status != Order.Status.QUEUED:
+            return api_response(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                message=f"Cannot in_prep order with status '{order.status}'. Order must be QUEUED first.",
+            )
+
+        max_item_prep_time = max(
+            item.menu_item.estimated_prep_minutes for item in order.orderitem_set.all()
+        )
+        active_orders = Order.objects.filter(status=Order.Status.IN_PREP)
+
+        backlog_minutes = 0
+        for active_order in active_orders:
+            remaining = (active_order.estimated_ready_at - timezone.now()).total_seconds() / 60
+            if remaining > 0:
+                backlog_minutes += remaining
+
+        total_prep_minutes = max_item_prep_time + backlog_minutes
+
+        order.status = Order.Status.IN_PREP
+        order.prep_started_at = timezone.now()
+        order.estimated_ready_at = timezone.now() + timezone.timedelta(minutes=total_prep_minutes)
+
+        order.save()
+
+        return api_response(
+            status_code=status.HTTP_200_OK,
+            message="Order is now in preparation",
+            data={
+                "id": order.id,
+                "status": order.status,
+                "estimated_ready_at": order.estimated_ready_at,
+            },
         )

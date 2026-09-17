@@ -11,6 +11,7 @@ from .views import (
     OrderCreateView,
     OrderQueueView,
     OrderListView,
+    OrderStartPrepView,
 )
 
 urlpatterns = [
@@ -28,4 +29,5 @@ urlpatterns = [
     path("create/orders/", OrderCreateView.as_view(), name="OrderCreate"),
     path("orders/<int:pk>/queue/", OrderQueueView.as_view(), name="order-queue"),
     path("orders/", OrderListView.as_view(), name="order-list"),
+    path("orders/<int:pk>/start-prep/", OrderStartPrepView.as_view(), name="order-start-prep"),
 ]
