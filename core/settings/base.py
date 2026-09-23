@@ -186,3 +186,11 @@ CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_TIMEZONE = "UTC"
+
+
+CELERY_BEAT_SCHEDULE = {
+    "check-ready-orders-every-30-seconds": {
+        "task": "common.tasks.check_and_update_ready_orders",
+        "schedule": 30.0,
+    },
+}
