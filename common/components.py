@@ -74,3 +74,22 @@ class OrderService:
         EmailNotificationService.send_email(email_data)
 
         return order
+
+    @staticmethod
+    def mark_ready(order: Order) -> Order:
+        order.status = Order.Status.READY
+        order.save()
+
+        email_body = (
+            f"Hi {order.customer.username},\n\n"
+            f"Your order #{order.id} (table {order.table_number}) is now ready!\n\n"
+            f"- BiteTime"
+        )
+        email_data = {
+            "email_subject": f"Your BiteTime order #{order.id} is ready!",
+            "email_body": email_body,
+            "to_email": order.customer.email,
+        }
+        EmailNotificationService.send_email(email_data)
+
+        return order

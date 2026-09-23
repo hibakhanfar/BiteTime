@@ -1,7 +1,13 @@
 from .RegisterView import RegisterView, UserRoleUpdateView, UserListView, UserAvatarUpdateView
 from .LoginView import CustomLoginView
 from .MenuItemListView import MenuItemListView, MenuToggleAvailabilityView
-from .OrdersView import OrderCreateView, OrderQueueView, OrderListView, OrderStartPrepView
+from .OrdersView import (
+    OrderCreateView,
+    OrderQueueView,
+    OrderListView,
+    OrderStartPrepView,
+    OrderMarkReadyView,
+)
 
 __all__ = [
     "RegisterView",
@@ -15,4 +21,5 @@ __all__ = [
     "OrderQueueView",
     "OrderListView",
     "OrderStartPrepView",
+    "OrderMarkReadyView",
 ]

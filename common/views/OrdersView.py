@@ -100,3 +100,25 @@ class OrderStartPrepView(APIView):
                 "estimated_ready_at": order.estimated_ready_at,
             },
         )
+
+
+class OrderMarkReadyView(APIView):
+    permission_classes = [HasRole]
+    allowed_roles = ["CHEF"]
+
+    def patch(self, request, pk):
+        order = get_object_or_404(Order, pk=pk)
+
+        if order.status != Order.Status.IN_PREP:
+            return api_response(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                message=f"Cannot mark ready order with status '{order.status}'. Order must be IN_PREP first.",
+            )
+
+        order = OrderService.mark_ready(order)
+
+        return api_response(
+            status_code=status.HTTP_200_OK,
+            message="Order is now ready",
+            data={"id": order.id, "status": order.status},
+        )
