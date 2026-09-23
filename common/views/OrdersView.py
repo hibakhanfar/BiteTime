@@ -7,6 +7,7 @@ from common.responses import api_response
 from rest_framework.generics import get_object_or_404
 from common.models import Order
 from common.components import OrderService
+from django.utils import timezone
 
 
 class OrderCreateView(APIView):
@@ -121,4 +122,28 @@ class OrderMarkReadyView(APIView):
             status_code=status.HTTP_200_OK,
             message="Order is now ready",
             data={"id": order.id, "status": order.status},
+        )
+
+
+class OrderServedView(APIView):
+    permission_classes = [HasRole]
+    allowed_roles = ["WAITER"]
+
+    def patch(self, request, pk):
+        order = get_object_or_404(Order, pk=pk)
+
+        if order.status != Order.Status.READY:
+            return api_response(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                message=f"Cannot serve order with status '{order.status}'. Order must be READY first.",
+            )
+
+        order.status = Order.Status.SERVED
+        order.completed_at = timezone.now()
+        order.save()
+
+        return api_response(
+            status_code=status.HTTP_200_OK,
+            message="Order served successfully",
+            data={"id": order.id, "status": order.status, "completed_at": order.completed_at},
         )

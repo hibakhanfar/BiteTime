@@ -7,6 +7,7 @@ from .OrdersView import (
     OrderListView,
     OrderStartPrepView,
     OrderMarkReadyView,
+    OrderServedView,
 )
 
 __all__ = [
@@ -22,4 +23,5 @@ __all__ = [
     "OrderListView",
     "OrderStartPrepView",
     "OrderMarkReadyView",
+    "OrderServedView",
 ]
