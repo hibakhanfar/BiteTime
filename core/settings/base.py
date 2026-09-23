@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     "common",
+    "django_celery_beat",
 ]
 
 AUTH_USER_MODEL = "common.User"
@@ -179,3 +180,9 @@ SPECTACULAR_SETTINGS = {
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_TIMEZONE = "UTC"
