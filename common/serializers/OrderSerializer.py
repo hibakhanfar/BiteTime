@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from common.models import MenuItem
+from common.models import MenuItem, TableCheckIn
 from common.components import OrderService
 
 
@@ -10,8 +10,21 @@ class OrderItemCreateSerializer(serializers.Serializer):
 
 
 class OrderCreateSerializer(serializers.Serializer):
-    table_number = serializers.IntegerField()
     items = OrderItemCreateSerializer(many=True)
+
+    def validate(self, attrs):
+        customer = self.context["request"].user
+        checkin = TableCheckIn.objects.filter(
+            customer=customer, status=TableCheckIn.Status.ACTIVE
+        ).first()
+
+        if checkin is None:
+            raise serializers.ValidationError(
+                "You must check in to a table before placing an order."
+            )
+
+        attrs["table_number"] = checkin.table_number
+        return attrs
 
     def create(self, validated_data):
         customer = self.context["request"].user

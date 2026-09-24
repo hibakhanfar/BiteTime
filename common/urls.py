@@ -14,6 +14,8 @@ from .views import (
     OrderStartPrepView,
     OrderMarkReadyView,
     OrderServedView,
+    TableCheckInView,
+    TableCheckOutView,
 )
 
 urlpatterns = [
@@ -34,4 +36,6 @@ urlpatterns = [
     path("orders/<int:pk>/start-prep/", OrderStartPrepView.as_view(), name="order-start-prep"),
     path("orders/<int:pk>/mark-ready/", OrderMarkReadyView.as_view(), name="order-mark-ready"),
     path("orders/<int:pk>/served/", OrderServedView.as_view(), name="order-served"),
+    path("tables/check-in/", TableCheckInView.as_view(), name="table-check-in"),
+    path("tables/check-out/", TableCheckOutView.as_view(), name="table-check-out"),
 ]
