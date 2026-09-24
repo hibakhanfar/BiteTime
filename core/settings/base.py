@@ -46,6 +46,7 @@ AUTH_USER_MODEL = "common.User"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "common.middleware.AuditLoggingMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -128,8 +129,6 @@ EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 LOGS_DIR = BASE_DIR / "logs"
 os.makedirs(LOGS_DIR, exist_ok=True)
 
-LOGS_DIR = BASE_DIR / "logs"
-os.makedirs(LOGS_DIR, exist_ok=True)
 
 LOGGING = {
     "version": 1,
@@ -155,13 +154,25 @@ LOGGING = {
             "filename": LOGS_DIR / "errors.log",
             "formatter": "verbose",
         },
+        "audit_file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": LOGS_DIR / "audit.log",
+            "formatter": "verbose",
+        },
     },
     "root": {
         "handlers": ["console", "file"],
         "level": "INFO",
     },
+    "loggers": {
+        "audit": {
+            "handlers": ["console", "audit_file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
 }
-
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
