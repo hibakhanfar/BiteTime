@@ -1,7 +1,28 @@
 from common.models.User import User
-from common.models import Order, OrderItem
+from common.models import Order, OrderItem, TableCheckIn
 from Services import EmailNotificationService
 from django.utils import timezone
+
+
+class TableService:
+    @staticmethod
+    def check_in(customer, table_number):
+        return TableCheckIn.objects.create(customer=customer, table_number=table_number)
+
+    @staticmethod
+    def check_out(customer):
+        checkin = TableCheckIn.objects.filter(
+            customer=customer, status=TableCheckIn.Status.ACTIVE
+        ).first()
+
+        if checkin is None:
+            return None
+
+        checkin.status = TableCheckIn.Status.CLOSED
+        checkin.checked_out_at = timezone.now()
+        checkin.save()
+
+        return checkin
 
 
 class UserService:
@@ -40,7 +61,7 @@ class OrderService:
         return order
 
     @staticmethod
-    def start_preparation(order: Order) -> Order:
+    def start_preparation(order: Order):
         max_item_prep_time = max(
             item.menu_item.estimated_prep_minutes for item in order.orderitem_set.all()
         )
