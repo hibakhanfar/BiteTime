@@ -68,6 +68,8 @@ class OrderListView(APIView):
         else:
             orders = Order.objects.all()
 
+        orders = orders.prefetch_related("orderitem_set__menu_item")
+
         serializer = OrderResponseSerializer(orders, many=True)
 
         return api_response(
