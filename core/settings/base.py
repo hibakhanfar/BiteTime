@@ -46,13 +46,13 @@ AUTH_USER_MODEL = "common.User"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "common.middleware.AuditLoggingMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "common.middleware.AuditLoggingMiddleware",
 ]
 
 ROOT_URLCONF = "core.urls"
