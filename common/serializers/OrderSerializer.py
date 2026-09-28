@@ -4,13 +4,18 @@ from common.components import OrderService
 
 
 class OrderItemCreateSerializer(serializers.Serializer):
-    menu_item = serializers.PrimaryKeyRelatedField(queryset=MenuItem.objects.all())
+    menu_item = serializers.PrimaryKeyRelatedField(
+        queryset=MenuItem.objects.filter(is_available=True),
+        error_messages={
+            "does_not_exist": "This menu item does not exist or is currently unavailable.",
+        },
+    )
     quantity = serializers.IntegerField(min_value=1, default=1)
-    special_instructions = serializers.CharField(required=False, allow_blank=True)
+    special_instructions = serializers.CharField(required=False, allow_blank=True, max_length=500)
 
 
 class OrderCreateSerializer(serializers.Serializer):
-    items = OrderItemCreateSerializer(many=True)
+    items = OrderItemCreateSerializer(many=True, allow_empty=False)
 
     def validate(self, attrs):
         customer = self.context["request"].user
