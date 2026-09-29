@@ -41,9 +41,9 @@ class OrderListView(APIView):
         user = request.user
 
         if user.role == "CUSTOMER":
-            orders = Order.objects.filter(customer=user)
+            orders = Order.objects.filter(customer=user, is_archived=False)
         else:
-            orders = Order.objects.all()
+            orders = Order.objects.filter(is_archived=False)
 
         orders = orders.prefetch_related("orderitem_set__menu_item")
 
@@ -68,7 +68,7 @@ class OrderQueueView(APIView):
     allowed_roles = ["WAITER"]
 
     def patch(self, request, pk):
-        get_object_or_404(Order, pk=pk)  # 404 لو مش موجود
+        get_object_or_404(Order, pk=pk)
         try:
             order = OrderService.queue_order(pk, actor=request.user.email)
         except InvalidOrderTransition as exc:

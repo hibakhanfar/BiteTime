@@ -4,6 +4,8 @@ from Services import EmailNotificationService, S3Service
 from django.utils import timezone
 import logging
 from django.db import transaction
+from django.db.models import Max
+from datetime import timedelta
 
 audit_logger = logging.getLogger("audit")
 
@@ -137,14 +139,15 @@ class OrderService:
         max_item_prep = max(i.menu_item.estimated_prep_minutes for i in items)
 
         now = timezone.now()
-        etas = Order.objects.filter(
+
+        last_eta = Order.objects.filter(
             status=Order.Status.IN_PREP, estimated_ready_at__gt=now
-        ).values_list("estimated_ready_at", flat=True)
-        backlog_minutes = sum((eta - now).total_seconds() / 60 for eta in etas)
+        ).aggregate(latest=Max("estimated_ready_at"))["latest"]
+        start_at = max(now, last_eta) if last_eta else now
 
         order.status = Order.Status.IN_PREP
         order.prep_started_at = now
-        order.estimated_ready_at = now + timezone.timedelta(minutes=max_item_prep + backlog_minutes)
+        order.estimated_ready_at = start_at + timedelta(minutes=max_item_prep)
         order.save(update_fields=["status", "prep_started_at", "estimated_ready_at"])
         OrderService._log_transition(order, Order.Status.QUEUED, actor)
 

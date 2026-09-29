@@ -1,5 +1,6 @@
 from django.urls import path
-
+from django.conf import settings
+from django.conf.urls.static import static
 from .views import (
     RegisterView,
     CustomLoginView,
@@ -33,9 +34,9 @@ urlpatterns = [
     ),
     path("auth/token/refresh/", CustomTokenRefreshView.as_view(), name="token-refresh"),
     path("users/me/avatar/", UserAvatarUpdateView.as_view(), name="user-avatar-update"),
-    path("create/orders/", OrderCreateView.as_view(), name="OrderCreate"),
+    path("orders/", OrderCreateView.as_view(), name="order-create"),
     path("orders/<int:pk>/queue/", OrderQueueView.as_view(), name="order-queue"),
-    path("orders/", OrderListView.as_view(), name="order-list"),
+    path("orders/list/", OrderListView.as_view(), name="order-list"),
     path("orders/<int:pk>/start-prep/", OrderStartPrepView.as_view(), name="order-start-prep"),
     path("orders/<int:pk>/mark-ready/", OrderMarkReadyView.as_view(), name="order-mark-ready"),
     path("orders/<int:pk>/served/", OrderServedView.as_view(), name="order-served"),
@@ -43,3 +44,5 @@ urlpatterns = [
     path("tables/check-out/", TableCheckOutView.as_view(), name="table-check-out"),
     path("media/presigned-url/", MediaPresignedURLView.as_view(), name="media-presigned-url"),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
