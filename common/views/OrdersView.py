@@ -7,7 +7,7 @@ from common.responses import api_response
 from rest_framework.generics import get_object_or_404
 from common.models import Order
 from common.components import OrderService
-from django.utils import timezone
+from common.components import InvalidOrderTransition
 
 
 class OrderCreateView(APIView):
@@ -34,29 +34,6 @@ class OrderCreateView(APIView):
         )
 
 
-class OrderQueueView(APIView):
-    permission_classes = [HasRole]
-    allowed_roles = ["WAITER"]
-
-    def patch(self, request, pk):
-        order = get_object_or_404(Order, pk=pk)
-
-        if order.status != Order.Status.PLACED:
-            return api_response(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                message=f"Cannot queue order with status '{order.status}'. Order must be PLACED first.",
-            )
-
-        order.status = Order.Status.QUEUED
-        order.save()
-
-        return api_response(
-            status_code=status.HTTP_200_OK,
-            message="Order queued successfully",
-            data={"id": order.id, "status": order.status},
-        )
-
-
 class OrderListView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -79,23 +56,40 @@ class OrderListView(APIView):
         )
 
 
+def _conflict(exc):
+    return api_response(
+        status_code=status.HTTP_409_CONFLICT,
+        message=str(exc),
+    )
+
+
+class OrderQueueView(APIView):
+    permission_classes = [HasRole]
+    allowed_roles = ["WAITER"]
+
+    def patch(self, request, pk):
+        get_object_or_404(Order, pk=pk)  # 404 لو مش موجود
+        try:
+            order = OrderService.queue_order(pk, actor=request.user.email)
+        except InvalidOrderTransition as exc:
+            return _conflict(exc)
+        return api_response(
+            message="Order queued successfully",
+            data={"id": order.id, "status": order.status},
+        )
+
+
 class OrderStartPrepView(APIView):
     permission_classes = [HasRole]
     allowed_roles = ["CHEF"]
 
     def patch(self, request, pk):
-        order = get_object_or_404(Order, pk=pk)
-
-        if order.status != Order.Status.QUEUED:
-            return api_response(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                message=f"Cannot in_prep order with status '{order.status}'. Order must be QUEUED first.",
-            )
-
-        order = OrderService.start_preparation(order)
-
+        get_object_or_404(Order, pk=pk)
+        try:
+            order = OrderService.start_preparation(pk, actor=request.user.email)
+        except InvalidOrderTransition as exc:
+            return _conflict(exc)
         return api_response(
-            status_code=status.HTTP_200_OK,
             message="Order is now in preparation",
             data={
                 "id": order.id,
@@ -110,18 +104,12 @@ class OrderMarkReadyView(APIView):
     allowed_roles = ["CHEF"]
 
     def patch(self, request, pk):
-        order = get_object_or_404(Order, pk=pk)
-
-        if order.status != Order.Status.IN_PREP:
-            return api_response(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                message=f"Cannot mark ready order with status '{order.status}'. Order must be IN_PREP first.",
-            )
-
-        order = OrderService.mark_ready(order)
-
+        get_object_or_404(Order, pk=pk)
+        try:
+            order = OrderService.mark_ready(pk, actor=request.user.email)
+        except InvalidOrderTransition as exc:
+            return _conflict(exc)
         return api_response(
-            status_code=status.HTTP_200_OK,
             message="Order is now ready",
             data={"id": order.id, "status": order.status},
         )
@@ -132,20 +120,12 @@ class OrderServedView(APIView):
     allowed_roles = ["WAITER"]
 
     def patch(self, request, pk):
-        order = get_object_or_404(Order, pk=pk)
-
-        if order.status != Order.Status.READY:
-            return api_response(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                message=f"Cannot serve order with status '{order.status}'. Order must be READY first.",
-            )
-
-        order.status = Order.Status.SERVED
-        order.completed_at = timezone.now()
-        order.save()
-
+        get_object_or_404(Order, pk=pk)
+        try:
+            order = OrderService.mark_served(pk, actor=request.user.email)
+        except InvalidOrderTransition as exc:
+            return _conflict(exc)
         return api_response(
-            status_code=status.HTTP_200_OK,
             message="Order served successfully",
             data={"id": order.id, "status": order.status, "completed_at": order.completed_at},
         )

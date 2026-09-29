@@ -52,4 +52,8 @@ class OrderResponseSerializer(serializers.Serializer):
     table_number = serializers.IntegerField()
     status = serializers.CharField()
     total_price = serializers.DecimalField(max_digits=10, decimal_places=2)
+    placed_at = serializers.DateTimeField()
+    prep_started_at = serializers.DateTimeField(allow_null=True)
+    estimated_ready_at = serializers.DateTimeField(allow_null=True)
+    completed_at = serializers.DateTimeField(allow_null=True)
     items = OrderItemResponseSerializer(source="orderitem_set", many=True)
