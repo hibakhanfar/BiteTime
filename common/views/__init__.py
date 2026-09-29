@@ -12,6 +12,7 @@ from .OrdersView import (
     OrderServedView,
 )
 from .TokenRefreshView import CustomTokenRefreshView
+from .MediaView import MediaPresignedDownloadView
 
 __all__ = [
     "RegisterView",
@@ -31,4 +32,5 @@ __all__ = [
     "OrderMarkReadyView",
     "OrderServedView",
     "CustomTokenRefreshView",
+    "MediaPresignedDownloadView",
 ]

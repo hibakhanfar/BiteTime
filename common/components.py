@@ -31,6 +31,12 @@ class MediaService:
 
         return result
 
+    @staticmethod
+    def create_presigned_download_url(object_key):
+        if not S3Service.object_exists(object_key):
+            return None
+        return S3Service.generate_presigned_download_url(object_key)
+
 
 class TableService:
     @staticmethod

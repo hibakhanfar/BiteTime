@@ -19,6 +19,7 @@ from .views import (
     TableCheckOutView,
     MediaPresignedURLView,
     CustomTokenRefreshView,
+    MediaPresignedDownloadView,
 )
 
 urlpatterns = [
@@ -43,6 +44,11 @@ urlpatterns = [
     path("tables/check-in/", TableCheckInView.as_view(), name="table-check-in"),
     path("tables/check-out/", TableCheckOutView.as_view(), name="table-check-out"),
     path("media/presigned-url/", MediaPresignedURLView.as_view(), name="media-presigned-url"),
+    path(
+        "media/download-url/",
+        MediaPresignedDownloadView.as_view(),
+        name="media-download-url",
+    ),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

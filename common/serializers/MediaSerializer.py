@@ -19,3 +19,18 @@ class PresignedUploadResponseSerializer(serializers.Serializer):
     upload_url = serializers.CharField()
     object_key = serializers.CharField()
     expires_in = serializers.IntegerField()
+
+
+class PresignedDownloadRequestSerializer(serializers.Serializer):
+    object_key = serializers.CharField(max_length=500)
+
+    def validate_object_key(self, value):
+        if not value.startswith("uploads/") or ".." in value.split("/"):
+            raise serializers.ValidationError("Invalid object key.")
+        return value
+
+
+class PresignedDownloadResponseSerializer(serializers.Serializer):
+    download_url = serializers.CharField()
+    object_key = serializers.CharField()
+    expires_in = serializers.IntegerField()
