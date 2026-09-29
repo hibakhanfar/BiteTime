@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 import environ
 import os
 from pathlib import Path
+from celery.schedules import crontab
+from datetime import timedelta
 
 env = environ.Env(DEBUG=(bool, False))
 
@@ -187,6 +189,10 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
     "COMPONENT_SPLIT_REQUEST": True,
 }
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+}
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -197,14 +203,16 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_TIMEZONE = "UTC"
 
-
 CELERY_BEAT_SCHEDULE = {
     "check-ready-orders-every-30-seconds": {
         "task": "common.tasks.check_and_update_ready_orders",
         "schedule": 30.0,
     },
+    "daily-system-cleanup-at-midnight": {
+        "task": "common.tasks.daily_system_cleanup",
+        "schedule": crontab(hour=0, minute=0),
+    },
 }
-
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME", "bitetime-media")

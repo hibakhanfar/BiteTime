@@ -7,8 +7,11 @@ def api_response(
     message="",
     data=None,
     errors=None,
-    is_success=True,
+    is_success=None,
 ):
+    if is_success is None:
+        is_success = status_code < 400
+
     payload = {
         "status": "success" if is_success else "error",
         "message": message,

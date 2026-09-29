@@ -5,4 +5,4 @@ class UsersConfig(AppConfig):
     name = "common"
 
     def ready(self):
-        pass
+        from . import schema  # noqa: F401
