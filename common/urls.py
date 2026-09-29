@@ -17,6 +17,7 @@ from .views import (
     TableCheckInView,
     TableCheckOutView,
     MediaPresignedURLView,
+    CustomTokenRefreshView,
 )
 
 urlpatterns = [
@@ -30,6 +31,7 @@ urlpatterns = [
         MenuToggleAvailabilityView.as_view(),
         name="menu-toggle-availability",
     ),
+    path("auth/token/refresh/", CustomTokenRefreshView.as_view(), name="token-refresh"),
     path("users/me/avatar/", UserAvatarUpdateView.as_view(), name="user-avatar-update"),
     path("create/orders/", OrderCreateView.as_view(), name="OrderCreate"),
     path("orders/<int:pk>/queue/", OrderQueueView.as_view(), name="order-queue"),

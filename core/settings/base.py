@@ -14,6 +14,7 @@ import environ
 import os
 from pathlib import Path
 from celery.schedules import crontab
+from datetime import timedelta
 
 env = environ.Env(DEBUG=(bool, False))
 
@@ -187,6 +188,10 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "API documentation",
     "VERSION": "1.0.0",
     "COMPONENT_SPLIT_REQUEST": True,
+}
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
 
 MEDIA_URL = "/media/"

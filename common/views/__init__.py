@@ -11,6 +11,7 @@ from .OrdersView import (
     OrderMarkReadyView,
     OrderServedView,
 )
+from .TokenRefreshView import CustomTokenRefreshView
 
 __all__ = [
     "RegisterView",
@@ -29,4 +30,5 @@ __all__ = [
     "OrderStartPrepView",
     "OrderMarkReadyView",
     "OrderServedView",
+    "CustomTokenRefreshView",
 ]
