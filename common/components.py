@@ -1,7 +1,29 @@
 from common.models.User import User
-from common.models import Order, OrderItem, TableCheckIn
-from Services import EmailNotificationService
+from common.models import Order, OrderItem, TableCheckIn, PresignedUpload
+from Services import EmailNotificationService, S3Service
 from django.utils import timezone
+
+
+class MediaService:
+    ALLOWED_CONTENT_TYPES = {
+        "video/mp4",
+        "video/quicktime",
+        "application/pdf",
+    }
+
+    @staticmethod
+    def create_presigned_upload_url(user, file_name, content_type):
+        result = S3Service.generate_presigned_upload_url(file_name, content_type)
+
+        PresignedUpload.objects.create(
+            requested_by=user,
+            object_key=result["object_key"],
+            original_filename=file_name,
+            content_type=content_type,
+            expires_at=timezone.now() + timezone.timedelta(seconds=result["expires_in"]),
+        )
+
+        return result
 
 
 class TableService:

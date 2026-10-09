@@ -16,6 +16,7 @@ from .views import (
     OrderServedView,
     TableCheckInView,
     TableCheckOutView,
+    MediaPresignedURLView,
 )
 
 urlpatterns = [
@@ -38,4 +39,5 @@ urlpatterns = [
     path("orders/<int:pk>/served/", OrderServedView.as_view(), name="order-served"),
     path("tables/check-in/", TableCheckInView.as_view(), name="table-check-in"),
     path("tables/check-out/", TableCheckOutView.as_view(), name="table-check-out"),
+    path("media/presigned-url/", MediaPresignedURLView.as_view(), name="media-presigned-url"),
 ]

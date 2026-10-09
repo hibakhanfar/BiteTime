@@ -2,6 +2,7 @@ from .RegisterView import RegisterView, UserRoleUpdateView, UserListView, UserAv
 from .LoginView import CustomLoginView
 from .MenuItemListView import MenuItemListView, MenuToggleAvailabilityView
 from .TableCheckInView import TableCheckInView, TableCheckOutView
+from .MediaView import MediaPresignedURLView
 from .OrdersView import (
     OrderCreateView,
     OrderQueueView,
@@ -21,6 +22,7 @@ __all__ = [
     "MenuToggleAvailabilityView",
     "TableCheckInView",
     "TableCheckOutView",
+    "MediaPresignedURLView",
     "OrderCreateView",
     "OrderQueueView",
     "OrderListView",

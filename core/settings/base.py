@@ -46,13 +46,13 @@ AUTH_USER_MODEL = "common.User"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "common.middleware.AuditLoggingMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "common.middleware.AuditLoggingMiddleware",
 ]
 
 ROOT_URLCONF = "core.urls"
@@ -205,3 +205,10 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": 30.0,
     },
 }
+
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME", "bitetime-media")
+AWS_S3_ENDPOINT_URL = os.getenv("AWS_S3_ENDPOINT_URL", "http://localhost:9000")
+AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME", "us-east-1")
+PRESIGNED_URL_EXPIRY_SECONDS = 3600
