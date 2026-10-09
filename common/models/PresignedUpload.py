@@ -3,6 +3,13 @@ from . import User
 
 
 class PresignedUpload(models.Model):
+    """
+    Records a presigned S3 upload URL issued to a user, and its expiry and status.
+
+    When an upload URL is generated, `MediaService` creates a record.
+    Status is initially PENDING; a (yet to be added) daily cleanup task will mark expired links as EXPIRED and remove old ones.
+    """
+
     class Status(models.TextChoices):
         PENDING = "PENDING", "Pending"
         EXPIRED = "EXPIRED", "Expired"
