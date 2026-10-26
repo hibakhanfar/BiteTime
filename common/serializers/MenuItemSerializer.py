@@ -6,7 +6,15 @@ from decimal import Decimal
 class MenuItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = MenuItem
-        fields = ("id", "name", "price", "estimated_prep_minutes", "image", "allergen_tags")
+        fields = (
+            "id",
+            "name",
+            "price",
+            "estimated_prep_minutes",
+            "image",
+            "allergen_tags",
+            "is_available",
+        )
 
 
 class MenuItemCreateSerializer(serializers.ModelSerializer):
