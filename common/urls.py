@@ -8,6 +8,17 @@ from .views import (
     UserListView,
     UserAvatarUpdateView,
     MenuToggleAvailabilityView,
+    OrderCreateView,
+    OrderQueueView,
+    OrderListView,
+    OrderStartPrepView,
+    OrderMarkReadyView,
+    OrderServedView,
+    TableCheckInView,
+    TableCheckOutView,
+    MediaPresignedURLView,
+    CustomTokenRefreshView,
+    MediaPresignedDownloadView,
 )
 
 urlpatterns = [
@@ -21,5 +32,20 @@ urlpatterns = [
         MenuToggleAvailabilityView.as_view(),
         name="menu-toggle-availability",
     ),
+    path("auth/token/refresh/", CustomTokenRefreshView.as_view(), name="token-refresh"),
     path("users/me/avatar/", UserAvatarUpdateView.as_view(), name="user-avatar-update"),
+    path("orders/", OrderCreateView.as_view(), name="order-create"),
+    path("orders/<int:pk>/queue/", OrderQueueView.as_view(), name="order-queue"),
+    path("orders/list/", OrderListView.as_view(), name="order-list"),
+    path("orders/<int:pk>/start-prep/", OrderStartPrepView.as_view(), name="order-start-prep"),
+    path("orders/<int:pk>/mark-ready/", OrderMarkReadyView.as_view(), name="order-mark-ready"),
+    path("orders/<int:pk>/served/", OrderServedView.as_view(), name="order-served"),
+    path("tables/check-in/", TableCheckInView.as_view(), name="table-check-in"),
+    path("tables/check-out/", TableCheckOutView.as_view(), name="table-check-out"),
+    path("media/presigned-url/", MediaPresignedURLView.as_view(), name="media-presigned-url"),
+    path(
+        "media/download-url/",
+        MediaPresignedDownloadView.as_view(),
+        name="media-download-url",
+    ),
 ]

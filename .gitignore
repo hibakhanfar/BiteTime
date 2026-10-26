@@ -10,4 +10,6 @@ wheels/
 .venv
 .env
 logs/errors.log
+logs/audit.log
+
 media
