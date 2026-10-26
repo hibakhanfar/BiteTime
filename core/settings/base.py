@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 import environ
 import os
 from pathlib import Path
+from celery.schedules import crontab
+from datetime import timedelta
 
 env = environ.Env(DEBUG=(bool, False))
 
@@ -46,13 +48,13 @@ AUTH_USER_MODEL = "common.User"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "common.middleware.AuditLoggingMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "common.middleware.AuditLoggingMiddleware",
 ]
 
 ROOT_URLCONF = "core.urls"
@@ -178,15 +180,18 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "EXCEPTION_HANDLER": "core.exceptions.custom_exception_handler",
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "common.authentication.TokenValidityInspector",
     ],
 }
-
 SPECTACULAR_SETTINGS = {
     "TITLE": "My API",
     "DESCRIPTION": "API documentation",
     "VERSION": "1.0.0",
     "COMPONENT_SPLIT_REQUEST": True,
+}
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
 
 MEDIA_URL = "/media/"
@@ -198,10 +203,19 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_TIMEZONE = "UTC"
 
-
 CELERY_BEAT_SCHEDULE = {
     "check-ready-orders-every-30-seconds": {
         "task": "common.tasks.check_and_update_ready_orders",
         "schedule": 30.0,
     },
+    "daily-system-cleanup-at-midnight": {
+        "task": "common.tasks.daily_system_cleanup",
+        "schedule": crontab(hour=0, minute=0),
+    },
 }
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME", "bitetime-media")
+AWS_S3_ENDPOINT_URL = os.getenv("AWS_S3_ENDPOINT_URL", "http://localhost:9000")
+AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME", "us-east-1")
+PRESIGNED_URL_EXPIRY_SECONDS = 3600
