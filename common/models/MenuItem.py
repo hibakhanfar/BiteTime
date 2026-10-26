@@ -7,7 +7,7 @@ class MenuItem(models.Model):
     estimated_prep_minutes = models.PositiveIntegerField()
     is_available = models.BooleanField(default=True)
     image = models.ImageField(upload_to="menu_items/", null=True, blank=True)
-    allergen_tags = models.JSONField(default=list, blank=True)
+    allergen_tags = models.CharField(max_length=255, blank=True, default="")
 
     def __str__(self):
         return self.name
